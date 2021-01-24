@@ -3,23 +3,23 @@
     <button class="display">{{current || 0.00}}</button>
     <button @click="clear">C</button>
     <button @click="module" class="operator">+/-</button>
-    <button class="operator" >%</button>
-    <button class="operator">/</button>
-    <button>7</button>
-    <button>8</button>
-    <button>9</button>
-    <button class="operator">x</button>
-    <button>4</button>
-    <button>5</button>
-    <button>6</button>
-    <button class="operator">-</button>
-    <button>1</button>
-    <button>2</button>
-    <button>3</button>
-    <button class="operator">+</button>
-    <button class="zero">0</button>
-    <button >.</button>
-    <button class="operator">=</button>
+    <button class="operator" @click="percent">%</button>
+    <button class="operator" @click="operatorsClick('/')">/</button>
+    <button @click="append('7')">7</button>
+    <button @click="append('8')">8</button>
+    <button @click="append('9')">9</button>
+    <button class="operator" @click="operatorsClick('x')">x</button>
+    <button @click="append('4')">4</button>
+    <button @click="append('5')">5</button>
+    <button @click="append('6')">6</button>
+    <button class="operator" @click="operatorsClick('-')">-</button>
+    <button @click="append('1')">1</button>
+    <button @click="append('2')">2</button>
+    <button @click="append('3')">3</button>
+    <button class="operator" @click="operatorsClick('+')">+</button>
+    <button class="zero" @click="append('0')">0</button>
+    <button @click="append('.')">.</button>
+    <button @click="equal" class="operator">=</button>
   </div>
 </template>
 
@@ -28,7 +28,11 @@
     name: 'Calculator',
     data() {
       return {
-        current: '234'
+        current: '200',
+        calculating: '',
+        previous: '',
+        operatorClicked: false,
+        operator: ''
       }
 
     },
@@ -45,9 +49,66 @@
           let plus = this.current.split('');
           plus.shift('-');
           this.current = plus.join('');
-
         }
+      },
+      percent() {
+        this.current!='' ? this.current = `${parseFloat(this.current) / 100}` : this.current = ''
+      },
+      append(number) {
+        if (number !== '.') {
+          this.current = this.current + number;
+        } else if (!this.current.includes('.')) {
+          this.current = this.current + number;
+        }
+
+      },
+      setPrevious() {
+        this.previous = this.current;
+        this.operatorClicked = true;
+      },
+      operatorsClick(operatorKind) {
+        this.setPrevious();
+        this.operator = operatorKind;
+        this.current = ''
+
+      },
+
+      equal() {
+        if (this.operatorClicked) {
+          switch (this.operator) {
+            case ('/'): {
+              this.current = (Number(this.previous) / Number(this.current)).toString();
+              this.operator = '';
+              this.previous = '';
+              this.operatorClicked = 'false';
+              break;
+            }
+            case ('+'): {
+              this.current = (Number(this.previous) + Number(this.current)).toString();
+              this.operator = '';
+              this.previous = '';
+              this.operatorClicked = 'false';
+              break;
+            }
+            case ('-'): {
+              this.current = (Number(this.previous) - Number(this.current)).toString();
+              this.operator = '';
+              this.previous = '';
+              this.operatorClicked = 'false';
+              break;
+            }
+            case ('x'): {
+              this.current = (Number(this.previous) * Number(this.current)).toString();
+              this.operator = '';
+              this.previous = '';
+              this.operatorClicked = 'false';
+              break;
+            }
+          }
+        }
+
       }
+
     }
 
 }
@@ -58,7 +119,11 @@
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
   button {
-    background: #eee
+    background: #c4c3c3;
+    transition: 1s;
+  }
+  button:focus {
+    background: white;
   }
 .calculator {
   width: 50%;
@@ -71,7 +136,9 @@
 .operator {
   background: darkorange;
 }
+
   .display {
+    padding-right: 20px;
     font-size: 25px;
     height: 100px;
     text-align: right;
